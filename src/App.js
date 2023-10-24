@@ -1,8 +1,16 @@
-import {useState} from "react";
+import { useState } from "react";
 
-function Square({value, onSquareClick, thisSquareCauseWin}) {
-  const background = thisSquareCauseWin ? "green" : "white";
-  return <button style={{backgroundColor: background}} className="square" onClick={onSquareClick}>{value}</button>;
+function Square({ value, onSquareClick, thisSquareCauseWin }) {
+  const background = thisSquareCauseWin ? "#808080" : "#FFFFFF";
+  return (
+    <button
+      style={{ backgroundColor: background }}
+      className="square"
+      onClick={onSquareClick}
+    >
+      {value}
+    </button>
+  );
 }
 
 function Board({ xIsNext, squares, onPlay }) {
@@ -10,32 +18,40 @@ function Board({ xIsNext, squares, onPlay }) {
   let gameStatus;
   if (winner) {
     gameStatus = "Winner: " + winner;
-  } else if (squares.includes(null))  {
+  } else if (squares.includes(null)) {
     gameStatus = "Next player: " + (xIsNext ? "X" : "O");
   } else {
-    gameStatus = "Game draws"
+    gameStatus = "Game draws";
   }
   function handleClick(i) {
     if (squares[i] || winner) {
       return;
     }
     const nextSquares = squares.slice();
-    nextSquares[i] = xIsNext ?  "X" : "O"
+    nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares);
   }
   const rows = [];
-  for(let row=0; row<3; row++) {
+  for (let row = 0; row < 3; row++) {
     const columns = [];
-    for(let column=0; column<3; column++) {
-      const index = 3 * row + column;
-      columns.push(<Square thisSquareCauseWin={winnerLine.includes(index)} value={squares[index]} onSquareClick={() => handleClick(3 * row + column)} />);
+    for (let column = 0; column < 3; column++) {
+      const squareIndex = 3 * row + column;
+      columns.push(
+        <Square
+          thisSquareCauseWin={winnerLine.includes(squareIndex)}
+          value={squares[squareIndex]}
+          onSquareClick={() => handleClick(3 * row + column)}
+        />,
+      );
     }
     rows.push(<div className="board-row">{columns}</div>);
   }
-  return <>
-    <div className="status">{gameStatus}</div>
-    {rows}
-  </>;
+  return (
+    <>
+      <div className="status">{gameStatus}</div>
+      {rows}
+    </>
+  );
 }
 
 export default function Game() {
@@ -52,15 +68,30 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
   const moves = history.map((squares, move) => {
+    const toMove = history[move];
+    const fromMove = history[move - 1];
+    let thisMove = toMove.findIndex(
+      (value, index) => value !== fromMove?.[index],
+    );
     let description;
     if (move > 0) {
-      description = "Go to move #" + move;
+      if (currentMove === move) {
+        description = `You are at move #${move} (${Math.floor(thisMove / 3)},${
+          thisMove % 3
+        })`;
+      } else {
+        description = `Go to move #${move} (${Math.floor(thisMove / 3)},${
+          thisMove % 3
+        })`;
+      }
     } else {
       description = "Go to game start";
     }
     return (
       <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
+        <button disabled={currentMove === move} onClick={() => jumpTo(move)}>
+          {description}
+        </button>
       </li>
     );
   });
@@ -70,7 +101,7 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <ul style={{ listStyleType: "none" }}>{moves}</ul>
       </div>
     </div>
   );
@@ -85,7 +116,7 @@ function calculateWinner(squares) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (const line of lines) {
     const [a, b, c] = line;
