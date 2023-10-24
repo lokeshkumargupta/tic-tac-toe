@@ -2,6 +2,11 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## About
+
+Interactive tic-tac-toe game with React with cool time travel capability.
+
+![](https://github.com/lokeshkumargupta/tic-tac-toe/blob/main/public/tic-tac-toe.gif)
 ## Available Scripts
 
 In the project directory, you can run:
